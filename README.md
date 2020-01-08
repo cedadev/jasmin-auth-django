@@ -16,7 +16,7 @@ In order to use `jasmin-auth-django-admin`, you must have the client ID and secr
 application that is registered with the JASMIN Accounts Portal. The application must be permitted
 to obtain tokens with the profile scope. To allow for transparent authentication, the application
 should also have "Skip authorization" set - not doing this will result in the authorization page
-being shown every time a user signs in.
+being shown every time a user authenticates with your service.
 
 To configure your admin to use JASMIN accounts for authentication, we need to modify the Django
 settings:
