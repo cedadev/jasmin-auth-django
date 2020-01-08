@@ -1,0 +1,29 @@
+{% extends "admin/base_site.html" %}
+{% load i18n static %}
+
+{% block extrastyle %}
+{{ block.super }}
+<link rel="stylesheet" type="text/css" href="{% static "admin/css/login.css" %}">
+<link rel="stylesheet" type="text/css" href="{% static "admin/css/oauth.css" %}">
+{% endblock %}
+
+{% block bodyclass %}{{ block.super }} login{% endblock %}
+
+{% block usertools %}{% endblock %}
+
+{% block nav-global %}{% endblock %}
+
+{% block content_title %}{% endblock %}
+
+{% block breadcrumbs %}{% endblock %}
+
+{% block content %}
+<div class="errornote">
+    <p>{{ error_description }}</p>
+    <p class="errorcode">OAuth error: <code>{{ error }}</code></p>
+</div>
+
+<p class="loginbutton">
+    <a href="{{ login_url }}">{% trans 'Authenticate again' %}</a>
+</p>
+{% endblock %}
