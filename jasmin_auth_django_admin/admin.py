@@ -15,6 +15,8 @@ from .settings import app_settings
 
 
 class AdminSite(admin.AdminSite):
+    enable_nav_sidebar = False
+
     def user_has_permission(self, user):
         return user.is_active and user.is_staff
 
