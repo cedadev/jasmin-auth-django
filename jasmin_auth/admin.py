@@ -7,8 +7,6 @@ from django.utils.http import urlencode
 from django.utils.translation import gettext as _
 from django.views.decorators.cache import never_cache
 
-from .settings import app_settings
-
 
 class AdminSite(admin.AdminSite):
     enable_nav_sidebar = False

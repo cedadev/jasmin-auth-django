@@ -1,4 +1,9 @@
-from settings_object.appsettings import SettingsObject, Setting, MergedDictSetting
+from settings_object.appsettings import (
+    SettingsObject,
+    Setting,
+    ImportStringSetting,
+    MergedDictSetting
+)
 
 
 class AppSettings(SettingsObject):
@@ -24,13 +29,27 @@ class AppSettings(SettingsObject):
     STATE_SESSION_KEY = Setting(default = 'jasmin_auth_state')
     #: The session key to use for the login redirect url
     NEXT_URL_SESSION_KEY = Setting(default = 'jasmin_auth_next_url')
+    #: Function that creates or updates a user from the profile result
+    CREATE_OR_UPDATE_USER_FUNC = ImportStringSetting(
+        default = 'jasmin_auth.helpers.create_or_update_user'
+    )
+    #: The key in the profile to use as the username
+    #: Used by the default CREATE_OR_UPDATE_USER_FUNC
+    PROFILE_USERNAME_KEY = Setting(default = 'username')
+    #: A mapping of profile keys to user fields
+    #: Used by the default CREATE_OR_UPDATE_USER_FUNC
+    PROFILE_USER_MAPPING = Setting(default = dict(
+        first_name = "first_name",
+        last_name = "last_name",
+        email = "email",
+    ))
     #: The error message for each error code
     ERROR_MESSAGES = MergedDictSetting(defaults = dict(
         access_denied = 'You did not grant the required access.',
     ))
     #: The default error message if the code is not present
     DEFAULT_ERROR_MESSAGE = Setting(
-        default = 'An error occurred during authentication - please try again'
+        default = 'An error occurred during authentication - please try again.'
     )
 
 
