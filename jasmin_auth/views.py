@@ -40,7 +40,9 @@ def callback(request):
     # Initialise the OAuth session
     provider = OAuth2Session(
         app_settings.CLIENT_ID,
-        state = request.session.pop(app_settings.STATE_SESSION_KEY, None)
+        redirect_uri = request.build_absolute_uri(reverse('jasmin_auth:callback')),
+        scope = ' '.join(app_settings.SCOPES),
+        state = request.session.pop(app_settings.STATE_SESSION_KEY, None),
     )
     try:
         token = provider.fetch_token(
