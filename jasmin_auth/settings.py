@@ -52,5 +52,12 @@ class AppSettings(SettingsObject):
         default = 'An error occurred during authentication - please try again.'
     )
 
+    #: Session key to use for storing the impersonated user pk
+    IMPERSONATE_SESSION_KEY = Setting(default = 'jasmin_auth_impersonate')
+    #: Function that tests if impersonation is permitted for an impersonator/impersonatee pair
+    IMPERSONATE_IS_PERMITTED = ImportStringSetting(
+        default = 'jasmin_auth.helpers.impersonation_permitted'
+    )
+
 
 app_settings = AppSettings('JASMIN_AUTH')

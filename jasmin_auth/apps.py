@@ -5,4 +5,4 @@ class AdminConfig(apps.AdminConfig):
     """
     Custom admin configuration object.
     """
-    default_site = 'jasmin_auth.admin.AdminSite'
+    default_site = 'jasmin_auth.admin_site.AdminSite'

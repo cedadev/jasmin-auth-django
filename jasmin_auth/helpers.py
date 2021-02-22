@@ -28,3 +28,20 @@ def create_or_update_user(profile):
     except ObjectDoesNotExist:
         user = UserModel.objects.create_user(username, **user_fields)
     return user
+
+
+def impersonation_permitted(impersonator, impersonatee):
+    """
+    Tests if the impersonator is allowed to impersonate the impersonatee.
+    """
+    # No impersonation is permitted by non-staff
+    if not impersonator.is_staff:
+        return False
+    # By default, superusers are allowed to impersonate any other user
+    if impersonator.is_superuser:
+        return True
+    # Other staff can impersonate any non-staff user
+    if not impersonatee.is_superuser and not impersonatee.is_staff:
+        return True
+    # No other impersonation is permitted
+    return False
