@@ -14,6 +14,7 @@ from django.views.decorators.cache import never_cache
 
 from .decorators import no_impersonation
 from .settings import app_settings
+from .signals import impersonation_started, impersonation_ended
 
 
 class AdminSite(admin.AdminSite):
@@ -103,7 +104,7 @@ class AdminSite(admin.AdminSite):
         # Try to find the user given by the pk
         User = get_user_model()
         try:
-            impersonated_user = User.objects.get(pk = pk)
+            impersonatee = User.objects.get(pk = pk)
         except ObjectDoesNotExist:
             # If the user does not exist, set a message
             messages.add_message(
@@ -113,15 +114,25 @@ class AdminSite(admin.AdminSite):
             )
         else:
             # Next, test if the authenticated user is allowed to impersonate the given user
-            if app_settings.IMPERSONATE_IS_PERMITTED(request.user, impersonated_user):
+            if app_settings.IMPERSONATE_IS_PERMITTED(request.user, impersonatee):
                 # If the impersonation is allowed, set the session key
+                # Get the previous setting of the key first as we only want to fire the
+                # signal when the key changes
+                previous_pk = request.session.get(app_settings.IMPERSONATE_SESSION_KEY)
                 request.session[app_settings.IMPERSONATE_SESSION_KEY] = pk
+                # Dispatch the signal to indicate that an impersonation has started
+                if previous_pk != pk:
+                    impersonation_started.send(
+                        impersonatee.__class__,
+                        impersonator = request.user,
+                        impersonatee = impersonatee
+                    )
             else:
                 # If the impersonation is not allowed, set a message
                 messages.add_message(
                     request,
                     messages.ERROR,
-                    'You are not allowed to impersonate user "{}".'.format(impersonated_user)
+                    'You are not allowed to impersonate user "{}".'.format(impersonatee)
                 )
         # Redirect the user back where they came from
         return self.redirect_to_referer(request)
@@ -131,6 +142,14 @@ class AdminSite(admin.AdminSite):
         """
         View to end impersonating a user.
         """
-        # Just clear the session key and redirect
-        del request.session[app_settings.IMPERSONATE_SESSION_KEY]
+        # Remove the key from the session
+        if app_settings.IMPERSONATE_SESSION_KEY in request.session:
+            del request.session[app_settings.IMPERSONATE_SESSION_KEY]
+        # If there is an impersonation active on this request, dispatch the signal
+        if request.impersonatee:
+            impersonation_ended.send(
+                request.user.__class__,
+                impersonator = request.user,
+                impersonatee = request.impersonatee
+            )
         return self.redirect_to_referer(request)

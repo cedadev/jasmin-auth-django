@@ -26,7 +26,10 @@ class ImpersonateMiddleware:
         try:
             impersonated_user = User.objects.get(pk = impersonated_pk)
         except ObjectDoesNotExist:
-            # If the user does not exist, we are done
+            # If the user does not exist, remove the key from the session so we don't
+            # try again next time
+            del request.session[app_settings.IMPERSONATE_SESSION_KEY]
+            # Then we are done
             return self.get_response(request)
         # If the user is permitted to impersonate the requested user, modify the request
         # If not, leave it as it is
