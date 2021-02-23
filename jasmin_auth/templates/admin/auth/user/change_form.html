@@ -4,8 +4,11 @@
 {% block object-tools-items %}
 {% if user.pk != original.pk %}
 <li>
-    {% url 'admin:impersonate' original.pk|admin_urlquote as impersonate_url %}
-    <a href="{% add_preserved_filters impersonate_url %}">{% translate "Impersonate" %}</a>
+    {% if request.impersonatee and request.impersonatee.pk == original.pk %}
+        <a href="{% url 'admin:impersonate_end' %}">{% translate "Stop impersonating" %}</a>
+    {% else %}
+        <a href="{% url 'admin:impersonate' original.pk|admin_urlquote %}">{% translate "Impersonate" %}</a>
+    {% endif %}
 </li>
 {% endif %}
 {{ block.super }}

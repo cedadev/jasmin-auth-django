@@ -117,6 +117,11 @@ class AdminSite(admin.AdminSite):
                 request.session[app_settings.IMPERSONATE_SESSION_KEY] = pk
                 # Dispatch the signal to indicate that an impersonation has started
                 if previous_pk != pk:
+                    messages.add_message(
+                        request,
+                        messages.SUCCESS,
+                        'Started impersonating user "{}".'.format(impersonatee)
+                    )
                     impersonation_started.send(
                         impersonatee.__class__,
                         impersonator = request.user,
@@ -145,6 +150,11 @@ class AdminSite(admin.AdminSite):
             del request.session[app_settings.IMPERSONATE_SESSION_KEY]
         # If there is an impersonation active on this request, dispatch the signal
         if request.impersonatee:
+            messages.add_message(
+                request,
+                messages.SUCCESS,
+                'Stopped impersonating user "{}".'.format(request.impersonatee)
+            )
             impersonation_ended.send(
                 request.user.__class__,
                 impersonator = request.user,
