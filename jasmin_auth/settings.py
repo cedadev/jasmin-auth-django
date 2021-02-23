@@ -55,9 +55,15 @@ class AppSettings(SettingsObject):
     #: Session key to use for storing the impersonated user pk
     IMPERSONATE_SESSION_KEY = Setting(default = 'jasmin_auth_impersonate')
     #: Function that tests if impersonation is permitted for an impersonator/impersonatee pair
-    IMPERSONATE_IS_PERMITTED = ImportStringSetting(
-        default = 'jasmin_auth.helpers.impersonation_permitted'
+    IMPERSONATE_IS_PERMITTED_USER = ImportStringSetting(
+        default = 'jasmin_auth.helpers.impersonation_permitted_user'
     )
+    #: Function that tests if impersonation is permitted for a particular request
+    IMPERSONATE_IS_PERMITTED_REQUEST = ImportStringSetting(
+        default = 'jasmin_auth.helpers.impersonation_permitted_request'
+    )
+    #: Iterable of patterns for which impersonation is disabled
+    IMPERSONATE_DISABLED_PATTERNS = Setting(default = ('^/admin', ))
 
 
 app_settings = AppSettings('JASMIN_AUTH')

@@ -1,18 +1,12 @@
-from functools import wraps
+from functools import update_wrapper
 
 
 def no_impersonation(view):
     """
     Decorator that disables impersonation for the given view.
     """
-    @wraps(view)
-    def wrapper(request, *args, **kwargs):
-        # If the request is impersonated, reverse it
-        impersonator = getattr(request, 'impersonator', None)
-        if impersonator:
-            # Store the impersonated user as impersonatee
-            request.impersonatee = request.user
-            request.user = impersonator
-            request.impersonator = None
-        return view(request, *args, **kwargs)
-    return wrapper
+    # Just return a new function with the no_impersonation flag set
+    def wrapper(*args, **kwargs):
+        return view(*args, **kwargs)
+    wrapper.no_impersonation = True
+    return update_wrapper(wrapper, view)

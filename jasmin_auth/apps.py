@@ -1,9 +1,18 @@
-from django.contrib.admin import apps
+from django import apps
+from django.contrib.admin import apps as admin_apps
 
 
-class AdminConfig(apps.AdminConfig):
+class AppConfig(apps.AppConfig):
     """
-    Custom admin configuration object.
+    Configuration for the main app.
+    """
+    name = 'jasmin_auth'
+    verbose_name = 'JASMIN Auth'
+
+
+class AdminConfig(admin_apps.AdminConfig):
+    """
+    Configuration for the custom admin site.
     """
     default_site = 'jasmin_auth.admin_site.AdminSite'
 

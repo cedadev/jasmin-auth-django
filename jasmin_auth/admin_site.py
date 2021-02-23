@@ -1,5 +1,3 @@
-from functools import wraps
-
 from django.conf import settings as django_settings
 from django.contrib import admin, messages
 from django.contrib.auth import REDIRECT_FIELD_NAME, get_user_model
@@ -57,26 +55,23 @@ class AdminSite(admin.AdminSite):
         Override get_urls to register our additional urls.
         """
         def wrap(view, cacheable = False):
-            @wraps(view)
-            def wrapper(*args, **kwargs):
-                return self.admin_view(view, cacheable)(*args, **kwargs)
-            wrapper.admin_site = self
-            return wrapper
+            wrapped = self.admin_view(view, cacheable)
+            wrapped.admin_site = self
+            return wrapped
 
-        urls = super().get_urls()[::-1]
-        # We need to insert our views before the catch all view
-        return (
-            urls[:-1] +
-            [
-                path('impersonate/<path:pk>/', wrap(self.impersonate), name = 'impersonate'),
-                path('impersonate_end/', wrap(self.impersonate_end), name = 'impersonate_end'),
-            ] +
-            urls[-1:]
-        )
+        impersonate_urls = [
+            path('impersonate/<path:pk>/', wrap(self.impersonate), name = 'impersonate'),
+            path('impersonate_end/', wrap(self.impersonate_end), name = 'impersonate_end'),
+        ]
+        return impersonate_urls + super().get_urls()
 
     def admin_view(self, view, cacheable = False):
         """
-        Override admin_view to unwind any active impersonation when inside the admin.
+        Override the admin_view decorator to disable impersonation for admin views.
+
+        This doesn't currently work due to https://code.djangoproject.com/ticket/32477.
+        A PR has been submitted with a fix - https://github.com/django/django/pull/14038/.
+        For now, we rely on URL pattern exclusions in the middleware.
         """
         return no_impersonation(super().admin_view(view, cacheable))
 
@@ -114,7 +109,7 @@ class AdminSite(admin.AdminSite):
             )
         else:
             # Next, test if the authenticated user is allowed to impersonate the given user
-            if app_settings.IMPERSONATE_IS_PERMITTED(request.user, impersonatee):
+            if app_settings.IMPERSONATE_IS_PERMITTED_USER(request.user, impersonatee):
                 # If the impersonation is allowed, set the session key
                 # Get the previous setting of the key first as we only want to fire the
                 # signal when the key changes

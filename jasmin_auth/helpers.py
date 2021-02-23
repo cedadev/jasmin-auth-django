@@ -1,5 +1,8 @@
+import re
+
 from django.contrib.auth import get_user_model
 from django.core.exceptions import ObjectDoesNotExist
+from django.urls import resolve
 
 from .settings import app_settings
 
@@ -30,7 +33,7 @@ def create_or_update_user(profile):
     return user
 
 
-def impersonation_permitted(impersonator, impersonatee):
+def impersonation_permitted_user(impersonator, impersonatee):
     """
     Tests if the impersonator is allowed to impersonate the impersonatee.
     """
@@ -45,3 +48,16 @@ def impersonation_permitted(impersonator, impersonatee):
         return True
     # No other impersonation is permitted
     return False
+
+
+def impersonation_permitted_request(request):
+    """
+    Tests if impersonation is allowed for the given request.
+    """
+    # First, see if the request path matches any of the excluded paths
+    for pattern in app_settings.IMPERSONATE_DISABLED_PATTERNS:
+        if re.search(pattern, request.path_info) is not None:
+            return False
+    # Then check if the view has disabled impersonation using the decorator
+    view_func, *notused = resolve(request.path_info, getattr(request, 'urlconf', None))
+    return not getattr(view_func, 'no_impersonation', False)

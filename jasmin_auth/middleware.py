@@ -13,6 +13,8 @@ class ImpersonateMiddleware:
         self.get_response = get_response
 
     def __call__(self, request):
+        # Set default values for impersonator and impersonatee
+        request.impersonator = None
         # Get the impersonated user pk from the session
         impersonated_pk = request.session.get(app_settings.IMPERSONATE_SESSION_KEY)
         # If the request is not impersonated, we are done
@@ -24,17 +26,24 @@ class ImpersonateMiddleware:
         # Next, try to get the user that is being impersonated
         User = get_user_model()
         try:
-            impersonated_user = User.objects.get(pk = impersonated_pk)
+            impersonatee = User.objects.get(pk = impersonated_pk)
         except ObjectDoesNotExist:
             # If the user does not exist, remove the key from the session so we don't
             # try again next time
             del request.session[app_settings.IMPERSONATE_SESSION_KEY]
             # Then we are done
             return self.get_response(request)
-        # If the user is permitted to impersonate the requested user, modify the request
-        # If not, leave it as it is
-        if app_settings.IMPERSONATE_IS_PERMITTED(request.user, impersonated_user):
-            # If they are, modify the request to reflect the impersonation
+        # If the user is not permitted to impersonate the requested user, we are done
+        if not app_settings.IMPERSONATE_IS_PERMITTED_USER(request.user, impersonatee):
+            return self.get_response(request)
+        # If we get to here then the impersonation would be permitted, however impersonation
+        # might be disabled for the specific request
+        if app_settings.IMPERSONATE_IS_PERMITTED_REQUEST(request):
+            # In the case where impersonation is permitted, update the user for the request
             request.impersonator = request.user
-            request.user = impersonated_user
+            request.user = impersonatee
+        else:
+            # In the case where impersonation is disabled for the request, we still
+            # acknowledge that it could have happened by setting impersonatee
+            request.impersonatee = impersonatee
         return self.get_response(request)
