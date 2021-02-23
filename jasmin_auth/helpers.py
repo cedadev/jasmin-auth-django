@@ -37,6 +37,9 @@ def impersonation_permitted_user(impersonator, impersonatee):
     """
     Tests if the impersonator is allowed to impersonate the impersonatee.
     """
+    # Prevent a user from impersonating themselves
+    if impersonator.pk == impersonatee.pk:
+        return False
     # No impersonation is permitted by non-staff
     if not impersonator.is_staff:
         return False

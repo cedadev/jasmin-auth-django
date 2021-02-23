@@ -124,11 +124,14 @@ class AdminSite(admin.AdminSite):
                     )
             else:
                 # If the impersonation is not allowed, set a message
-                messages.add_message(
-                    request,
-                    messages.ERROR,
-                    'You are not allowed to impersonate user "{}".'.format(impersonatee)
-                )
+                # Use a nicer message if the user is trying to impersonate themselves
+                if request.user.pk == impersonatee.pk:
+                    message = 'No need to impersonate yourself!'
+                    level = messages.WARNING
+                else:
+                    message = 'You are not allowed to impersonate user "{}".'.format(impersonatee)
+                    level = messages.ERROR
+                messages.add_message(request, level, message)
         # Redirect the user back where they came from
         return self.redirect_to_referer(request)
 

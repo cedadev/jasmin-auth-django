@@ -2,9 +2,11 @@
 {% load i18n admin_urls %}
 
 {% block object-tools-items %}
+{% if user.pk != original.pk %}
 <li>
     {% url 'admin:impersonate' original.pk|admin_urlquote as impersonate_url %}
     <a href="{% add_preserved_filters impersonate_url %}">{% translate "Impersonate" %}</a>
 </li>
+{% endif %}
 {{ block.super }}
 {% endblock %}
