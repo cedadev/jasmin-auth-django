@@ -65,5 +65,8 @@ class AppSettings(SettingsObject):
     #: Iterable of patterns for which impersonation is disabled
     IMPERSONATE_DISABLED_PATTERNS = Setting(default = ('^/admin', ))
 
+    # Default backend to use for auth
+    DEFAULT_BACKEND = Setting( default = '')
+
 
 app_settings = AppSettings('JASMIN_AUTH')

@@ -66,7 +66,10 @@ def callback(request):
         # The function to create or update a user is a setting
         user = app_settings.CREATE_OR_UPDATE_USER_FUNC(profile)
         # Log the user in
-        auth_login(request, user)
+        if app_settings.DEFAULT_BACKEND:
+          auth_login(request, user)
+        else:
+          auth_login(request, user, 'django.contrib.auth.backends.ModelBackend')
         # Redirect to the specified URL
         next_url = request.session.pop(
             app_settings.NEXT_URL_SESSION_KEY,
