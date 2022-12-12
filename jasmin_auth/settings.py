@@ -65,5 +65,9 @@ class AppSettings(SettingsObject):
     #: Iterable of patterns for which impersonation is disabled
     IMPERSONATE_DISABLED_PATTERNS = Setting(default = ('^/admin', ))
 
+    # The backend to use to log the user in as.
+    # A class path e.g. django.contrib.auth.backends.ModelBackend
+    LOGIN_BACKEND = Setting(default = '')
+
 
 app_settings = AppSettings('JASMIN_AUTH')
