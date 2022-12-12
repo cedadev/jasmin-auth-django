@@ -65,9 +65,11 @@ def callback(request):
         profile = provider.get(app_settings.PROFILE_URL).json()
         # The function to create or update a user is a setting
         user = app_settings.CREATE_OR_UPDATE_USER_FUNC(profile)
-        # Log the user in
-        if app_settings.DEFAULT_BACKEND:
-          auth_login(request, user, app_settings.DEFAULT_BACKEND)
+        # Log the user in.
+        # If the backend to use is specified in settings use that one (should be a dotted
+        # class path to the backend). Otherwise just use whatever the default one is.
+        if app_settings.LOGIN_BACKEND:
+          auth_login(request, user, app_settings.LOGIN_BACKEND)
         else:
           auth_login(request, user)
         # Redirect to the specified URL
