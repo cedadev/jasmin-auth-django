@@ -66,7 +66,7 @@ class AppSettings(SettingsObject):
     IMPERSONATE_DISABLED_PATTERNS = Setting(default = ('^/admin', ))
 
     # Default backend to use for auth
-    DEFAULT_BACKEND = Setting( default = '')
+    DEFAULT_BACKEND = Setting(default = '')
 
 
 app_settings = AppSettings('JASMIN_AUTH')
