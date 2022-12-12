@@ -67,9 +67,9 @@ def callback(request):
         user = app_settings.CREATE_OR_UPDATE_USER_FUNC(profile)
         # Log the user in
         if app_settings.DEFAULT_BACKEND:
-          auth_login(request, user)
+          auth_login(request, user, app_settings.DEFAULT_BACKEND)
         else:
-          auth_login(request, user, 'django.contrib.auth.backends.ModelBackend')
+          auth_login(request, user)
         # Redirect to the specified URL
         next_url = request.session.pop(
             app_settings.NEXT_URL_SESSION_KEY,
