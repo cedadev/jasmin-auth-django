@@ -8,6 +8,7 @@ class AppConfig(apps.AppConfig):
     """
     name = 'jasmin_auth'
     verbose_name = 'JASMIN Auth'
+    default = True
 
 
 class AdminConfig(admin_apps.AdminConfig):
@@ -15,6 +16,7 @@ class AdminConfig(admin_apps.AdminConfig):
     Configuration for the custom admin site.
     """
     default_site = 'jasmin_auth.admin_site.AdminSite'
+    default = False
 
     def ready(self):
         """
